@@ -9,12 +9,21 @@ def DTW(Ex1_npz, Ex1_mp4, Ex2_npz, Ex2_mp4, PoseDetection='GAST', visualize=True
     if PoseDetection == 'GAST':
        Ex1 = np.load(Ex1_npz)['reconstruction'][0]
        Ex2 = np.load(Ex2_npz)['reconstruction'][0]
+
     elif PoseDetection == 'MoveNet':
        Ex1 = np.load(Ex1_npz)['arr_0']
        Ex2 = np.load(Ex2_npz)['arr_0']
+       Ex1[:,:,0] = Ex1[:,:,0]*1080;Ex1[:,:,1] = Ex1[:,:,1]*1920
+       Ex2[:,:,0] = Ex2[:,:,0]*1080;Ex2[:,:,1] = Ex2[:,:,1]*1920
+       Ex1[Ex1 == -1] = 0;Ex2[Ex2 == -1] = 0;
+
+       # only for testing the system without DTW made by jubran, must be commented - 2 lines
+       #np.savez_compressed('./DTWOutputFiles/Ex1_DTW.npz', reconstruction=Ex1.reshape(1,Ex1.shape[0],Ex1.shape[1],Ex1.shape[2]))
+       #np.savez_compressed('./DTWOutputFiles/Ex2_DTW.npz', reconstruction=Ex2.reshape(1,Ex2.shape[0],Ex2.shape[1],Ex2.shape[2]))
+       #return
     else:
-       print("Pose detection method in unknown")
-       sys.exit(1) 
+       print("No DTW because Pose detection method in unknown")
+       return
 
     x = Ex1.reshape(Ex1.shape[0],-1)
     y = Ex2.reshape(Ex2.shape[0],-1)
@@ -42,7 +51,7 @@ def DTW(Ex1_npz, Ex1_mp4, Ex2_npz, Ex2_mp4, PoseDetection='GAST', visualize=True
     np.savez_compressed('./DTWOutputFiles/Ex1_DTW.npz', reconstruction=Ex1_DTW)
     np.savez_compressed('./DTWOutputFiles/Ex2_DTW.npz', reconstruction=Ex2_DTW)
 
-    if visualize: 
+    if visualize:
        reorder_mp4_frames(Ex1_mp4, './DTWOutputFiles/Ex1_DTW.mp4', Ex1_frame_order)
        reorder_mp4_frames(Ex2_mp4, './DTWOutputFiles/Ex2_DTW.mp4', Ex2_frame_order)
 
@@ -81,3 +90,4 @@ def reorder_mp4_frames(input_file, output_file, frame_order):
     out.release()
 
     return
+

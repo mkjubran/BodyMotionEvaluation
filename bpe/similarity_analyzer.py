@@ -8,7 +8,7 @@ from tslearn.metrics import dtw_path
 import numpy as np
 
 from bpe.model import networks_bpe
-
+import pdb
 
 class SimilarityAnalyzer:
     def __init__(self, config, model_path):
@@ -26,6 +26,7 @@ class SimilarityAnalyzer:
         # load pretrained model
         network.load_state_dict(self.load_ckpt_from_path(model_path, device=config.device))
         # extract only motion encoders
+        #pdb.set_trace()
         network = network.mot_encoders
         # move to appropriate device
         network.to(config.device)
@@ -88,6 +89,7 @@ class SimilarityAnalyzer:
     def get_embeddings(self, seq, video_window_size, video_stride):
         # extract sub-sequences defined by window size and stride
         seq = self.oversample_sequences(seq, video_window_size, video_stride)
+        #pdb.set_trace()
         # extract motion embeddings
         seq_features = self.get_motion_encodings_by_body_part_for_sequences(seq)
         return seq_features

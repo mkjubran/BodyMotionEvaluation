@@ -7,8 +7,6 @@ import numpy as np
 from tqdm import tqdm
 import imageio as io
 
-import pdb
-
 def get_video_from_sequence(seq, height, width):
     num_frames = seq.shape[-1]
     channel = 3
@@ -266,8 +264,6 @@ def video_out_with_imageio(output_path: str, width: int, height: int,
 
         if is_debug and frame_idx == 500:
             break
-
-        #pdb.set_trace()
 
         #out_video_writer.append_data(canvas.to_string())
         out_video_writer.append_data(canvas)
