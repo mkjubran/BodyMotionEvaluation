@@ -14,6 +14,7 @@ from bpe.functional.visualization import preprocess_sequence, video_out_with_ima
 
 from dtaidistance import dtw_ndim #jubran
 from bpe.PTLoadandDTW import DTW #jubran
+from tqdm import tqdm
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -72,24 +73,20 @@ if __name__ == '__main__':
 
     similarity_analyzer = SimilarityAnalyzer(config, args.model_path)
 
-    motion_similarity_npz_file = "motion_similarity.npz"
-
     # Get the list of files in the folder
-    file_list = [file.split('.')[0] for file in os.listdir(args.npz_path) if os.path.isfile(os.path.join(args.npz_path, file))]
+    file_list = [file.split('.')[0] for file in os.listdir(args.npz_path) if (os.path.isfile(os.path.join(args.npz_path, file)) and ('seg1' in file))]
 
     # loop through all files and store them in the dictionary
     cnt_file1=0
     for file1 in file_list:
        cnt_file1 += 1; cnt_file2=0
-       for file2 in file_list:
-           #file1 ="E1_P8_T0_C0_seg0_2D"
-           #file2= "E1_P7_T0_C0_seg0_2D"
-           #if True:
-           cnt_file2 += 1
+       for file2 in tqdm(file_list, desc=f"[{cnt_file1}/{len(file_list)}]:{file1}"):
+       #for file2 in file_list:
+         motion_similarity_npz_file=f"./output/{file1}_{file2}.npz"
+         cnt_file2 += 1
+         if not os.path.exists(motion_similarity_npz_file):
 
-           print(f"[{cnt_file1}/{len(file_list)}]:{file1}, [{cnt_file2}/{len(file_list)}]:{file2}")
-
-           motion_similarity_npz_file=f"./output/{file1}_{file2}.npz"
+           #print(f"[{cnt_file1}/{len(file_list)}]:{file1}, [{cnt_file2}/{len(file_list)}]:{file2}")
 
            #print("Apply DTW to seq1 and seq2")
            vid1_npz=os.path.join(args.npz_path,f"{file1}.npz")
@@ -150,9 +147,9 @@ if __name__ == '__main__':
                   motion_similarity_per_window_flipped = \
                           similarity_analyzer.get_similarity_score(seq1_flipped_features, seq2_features,
                                                      similarity_window_size=args.similarity_measurement_window_size)
-           for temporal_idx in range(len(motion_similarity_per_window)):
-              for key in motion_similarity_per_window[temporal_idx].keys():
-                motion_similarity_per_window[temporal_idx][key] = max(motion_similarity_per_window[temporal_idx][key],
+                  for temporal_idx in range(len(motion_similarity_per_window)):
+                      for key in motion_similarity_per_window[temporal_idx].keys():
+                          motion_similarity_per_window[temporal_idx][key] = max(motion_similarity_per_window[temporal_idx][key],
                                                                       motion_similarity_per_window_flipped[
                                                                           temporal_idx][key])
 

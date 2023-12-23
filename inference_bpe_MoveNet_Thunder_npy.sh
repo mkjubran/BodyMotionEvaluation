@@ -13,7 +13,6 @@ python3 bin/inference_single_pair.py  --data_dir "../SARA_released/" \
   -h2 400 \
   -w1 300 \
   -w2 300 \
-  --use_flipped_motion \
   --video_sampling_window_size 13 \
   --video_sampling_stride 1 \
   --similarity_measurement_window_size 1 \
@@ -21,12 +20,7 @@ python3 bin/inference_single_pair.py  --data_dir "../SARA_released/" \
   --thresh 0.9 \
   --pose_detection "MoveNet" \
   --npz_path "../../Dataset_CVDLPT_Videos_Segments_MoveNet_thunder_npz" \
-  --mp4_path "../../Dataset_CVDLPT_Videos_Segments_11_2023" \
-  --connected_joints
-  #--npz_path "../sample_file_npz" \
-  #--mp4_path  "../sample_files_mp4"
+  --mp4_path "../../Dataset_CVDLPT_Videos_Segments_11_2023" 
 
 
-
-  #--npz_path "../../Dataset_CVDLPT_Videos_Segments_MoveNet_thunder_npz" \
-  #--mp4_path "../../Dataset_CVDLPT_Videos_Segments_11_2023"
+  #--use_flipped_motion \
