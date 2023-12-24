@@ -69,8 +69,6 @@ if __name__ == '__main__':
 
     config = Config(args)
 
-    #pdb.set_trace()
-
     similarity_analyzer = SimilarityAnalyzer(config, args.model_path)
 
     # Get the list of files in the folder
@@ -125,14 +123,28 @@ if __name__ == '__main__':
            seq1_origin = seq1_origin.to(config.device)
            seq2_origin = seq2_origin.to(config.device)
 
-           #pdb.set_trace()
-
            # get embeddings
            seq1_features = similarity_analyzer.get_embeddings(seq1_origin, video_window_size=args.video_sampling_window_size,
                                                        video_stride=args.video_sampling_stride)
            seq2_features = similarity_analyzer.get_embeddings(seq2_origin, video_window_size=args.video_sampling_window_size,
                                                        video_stride=args.video_sampling_stride)
-           #pdb.set_trace()
+
+           # To save embeddings - Jubran
+           seq1_features_np=[]
+           for cntF in range(len(seq1_features)):
+              seq1_features_vector=[]
+              for cntbp in range(5):
+                  seq1_features_vector.extend(seq1_features[cntF][cntbp])
+              seq1_features_np.append(seq1_features_vector)
+           seq1_features_np_stack = np.stack(seq1_features_np,axis=0)
+
+           seq2_features_np=[]
+           for cntF in range(len(seq2_features)):
+              seq2_features_vector=[]
+              for cntbp in range(5):
+                  seq2_features_vector.extend(seq2_features[cntF][cntbp])
+              seq2_features_np.append(seq2_features_vector)
+           seq2_features_np_stack = np.stack(seq2_features_np,axis=0)
 
            # get motion similarity
            motion_similarity_per_window = \

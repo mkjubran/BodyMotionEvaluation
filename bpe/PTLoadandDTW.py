@@ -4,6 +4,20 @@ import cv2
 import sys
 import pdb
 
+def ProcessData(Ex1_npz,PoseDetection='GAST'):
+    if PoseDetection == 'GAST':
+       Ex1 = np.load(Ex1_npz)['reconstruction'][0]
+    elif PoseDetection == 'MoveNet':
+       Ex1 = np.load(Ex1_npz)['arr_0']
+       Ex1[:,:,0] = Ex1[:,:,0]*1080;Ex1[:,:,1] = Ex1[:,:,1]*1920
+       Ex1[Ex1 == -1] = 0;
+    else:
+       print("No DTW because Pose detection method in unknown")
+       return
+    np.savez_compressed('./DTWOutputFiles/Ex1_DTW.npz', reconstruction=Ex1.reshape(1,Ex1.shape[0],Ex1.shape[1],Ex1.shape[2]))
+
+
+
 def DTW(Ex1_npz, Ex1_mp4, Ex2_npz, Ex2_mp4, PoseDetection='GAST', visualize=True):
 
     if PoseDetection == 'GAST':
@@ -18,9 +32,9 @@ def DTW(Ex1_npz, Ex1_mp4, Ex2_npz, Ex2_mp4, PoseDetection='GAST', visualize=True
        Ex1[Ex1 == -1] = 0;Ex2[Ex2 == -1] = 0;
 
        # only for testing the system without DTW made by jubran, must be commented - 2 lines
-       #np.savez_compressed('./DTWOutputFiles/Ex1_DTW.npz', reconstruction=Ex1.reshape(1,Ex1.shape[0],Ex1.shape[1],Ex1.shape[2]))
-       #np.savez_compressed('./DTWOutputFiles/Ex2_DTW.npz', reconstruction=Ex2.reshape(1,Ex2.shape[0],Ex2.shape[1],Ex2.shape[2]))
-       #return
+       np.savez_compressed('./DTWOutputFiles/Ex1_DTW.npz', reconstruction=Ex1.reshape(1,Ex1.shape[0],Ex1.shape[1],Ex1.shape[2]))
+       np.savez_compressed('./DTWOutputFiles/Ex2_DTW.npz', reconstruction=Ex2.reshape(1,Ex2.shape[0],Ex2.shape[1],Ex2.shape[2]))
+       return
     else:
        print("No DTW because Pose detection method in unknown")
        return
