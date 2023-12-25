@@ -86,7 +86,7 @@ if __name__ == '__main__':
                         help='when on, no original video or sound in present in the output video')
     parser.add_argument('--thresh', type=float, default=0.5, help='threshold to seprate positive and negative classes')
     parser.add_argument('--connected_joints', action='store_true', help='connect joints with lines in the output video')
-   
+
     #Added by jubran
     parser.add_argument('--pose_detection', type=str, help="GAST, MoveNet")
     parser.add_argument('--embeddings_path', type=str, help="path for all npz files")
@@ -113,15 +113,12 @@ if __name__ == '__main__':
        cnt_file1 += 1
        cnt_file2 = 0
        file1_score=[]
-       for file2 in file_list: #tqdm(file_list, desc=f"[{cnt_file1}/{len_file_list}] {file1}]"):
-         file2_meta_score=[file2.split('_')[0][1:],file2.split('_')[1][1:],file2.split('_')[2][1:],file2.split('_')[3][1:],file2.split('_')[4][3:]]
-
-         file_similarity_npz=f"./output_similarity/{file1}_emb.npz"
-         if not os.path.exists(file_similarity_npz):
+       for file2 in tqdm(file_list, desc=f"[{cnt_file1}/{len_file_list}] {file1}]"):
            data_file1=np.load(os.path.join(args.embeddings_path, f"{file1}.npz"))['data']
            data_file2=np.load(os.path.join(args.embeddings_path, f"{file2}.npz"))['data']
            if (not PerWindowsSize) and (not PerBodyPart):
               # Evaluate the exercise quality for all frames and all bodey parts, single score will be assigned
+              file2_meta_score=[file2.split('_')[0][1:],file2.split('_')[1][1:],file2.split('_')[2][1:],file2.split('_')[3][1:],file2.split('_')[4][3:]]
               similarity_score=[]
               seq1_features_vector = data_file1
               seq2_features_vector = data_file2
@@ -131,6 +128,7 @@ if __name__ == '__main__':
               file1_score.append(file2_meta_score)
            elif (not PerWindowsSize) and (PerBodyPart):
               # Evaluate the exercise quality for all frames, multiple scores will be assigned for the same exercise considering different body parts
+              file2_meta_score=[file2.split('_')[0][1:],file2.split('_')[1][1:],file2.split('_')[2][1:],file2.split('_')[3][1:],file2.split('_')[4][3:]]
               similarity_score=[]
               similarity_score_by_body_part=[]
               for cntbp in range(5):
@@ -147,6 +145,7 @@ if __name__ == '__main__':
            elif (PerWindowsSize) and (PerBodyPart):
               # Evaluate the exercise quality based on a similarity window size.
               # Multiple scores will be assigned for the same exercise, considering different body parts and exercise segments.
+              file2_meta_score=[file2]
               seq1_features=[]
               for cntF in range(data_file1.shape[0]):
                  seq1_features_vector=[]
@@ -174,15 +173,27 @@ if __name__ == '__main__':
 
                  assert len(subseq1_features) == len(subseq2_features) and len(subseq2_features) != 0
 
-                 similarity_score_by_body_part = []
+                 similarity_score_by_body_part = {}
                  for bp_idx, bp in enumerate(body_parts_name):
                       subseq1_features_bp = [subseq1_features[subseq_temporal_idx][bp_idx] for subseq_temporal_idx in
                                              range(len(subseq1_features))]
                       subseq2_features_bp = [subseq2_features[subseq_temporal_idx][bp_idx] for subseq_temporal_idx in
                                              range(len(subseq2_features))]
-                      similarity_score_by_body_part.append(get_similarity(subseq1_features_bp, subseq2_features_bp))
+                      similarity_score_by_body_part[bp] = get_similarity(subseq1_features_bp, subseq2_features_bp)
 
-                 similarity_score_per_window.extend(similarity_score_by_body_part)
-              file2_meta_score.extend(similarity_score_per_window)
+                 similarity_score_per_window.append(similarity_score_by_body_part)
+              file2_meta_score.append(similarity_score_per_window)
               file1_score.append(file2_meta_score)
-              pdb.set_trace()
+
+    if (not PerWindowsSize) and (not PerBodyPart):
+        file_similarity=f"./output_similarity/{file1}_simscore.npz"
+        file1_score_np = np.stack(file1_score,axis=0)
+        np.savez(file_similarity, data=file1_score_np)
+    elif (not PerWindowsSize) and (PerBodyPart):
+        file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart.npz"
+        file1_score_np = np.stack(file1_score,axis=0)
+        np.savez(file_similarity, data=file1_score_np)
+    elif (PerWindowsSize) and (PerBodyPart):
+        file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart_PerWindow.npz"
+        with open(file_similarity, 'w') as json_file:
+             json.dump(file1_score, json_file)
