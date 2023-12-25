@@ -21,6 +21,9 @@ import torch
 from dtaidistance import dtw_ndim
 import json
 
+#file1="E0_P0_T0_C2_seg5_2D_emb"
+#file2="E0_P1_T0_C2_seg6_2D_emb"
+
 body_parts_name = ['ra', 'la', 'rl', 'll', 'torso']
 
 PerWindowsSize = False
@@ -92,7 +95,12 @@ if __name__ == '__main__':
     parser.add_argument('--pose_detection', type=str, help="GAST, MoveNet")
     parser.add_argument('--embeddings_path', type=str, help="path for all npz files")
     parser.add_argument('--mp4_path', type=str, help="path for all mp4 files")
+    parser.add_argument('--file1emb', type=str, help="path for file1 embeddings")
+    parser.add_argument('--file2emb', type=str, help="path for file2 embeddings")
     args = parser.parse_args()
+
+    file1=args.file1emb
+    file2=args.file2emb
 
     # load meanpose and stdpose
     mean_pose_bpe = np.load(os.path.join(args.data_dir, 'meanpose_rc_with_view_unit64.npy'))
@@ -110,13 +118,14 @@ if __name__ == '__main__':
     # loop through all files and store them in the dictionary
     cnt_file1 = 0
     len_file_list = len(file_list)
-    for file1 in file_list:
-       cnt_file1 += 1
-       cnt_file2 = 0
-       file1_score=[]
-       for file2 in tqdm(file_list, desc=f"[{cnt_file1}/{len_file_list}] {file1}]"):
+    if True:
+           file1_score=[]
+           file2_meat_score=[]
+           #file1="E4_P0_T1_C2_seg6_2D_emb"
+           #file2="E4_P0_T1_C2_seg6_2D_emb"
            data_file1=np.load(os.path.join(args.embeddings_path, f"{file1}.npz"))['data']
            data_file2=np.load(os.path.join(args.embeddings_path, f"{file2}.npz"))['data']
+           print(file1, file2)
            if (not PerWindowsSize) and (not PerBodyPart):
               # Evaluate the exercise quality for all frames and all bodey parts, single score will be assigned
               file2_meta_score=[file2.split('_')[0][1:],file2.split('_')[1][1:],file2.split('_')[2][1:],file2.split('_')[3][1:],file2.split('_')[4][3:]]
@@ -186,15 +195,4 @@ if __name__ == '__main__':
               file2_meta_score.append(similarity_score_per_window)
               file1_score.append(file2_meta_score)
 
-       if (not PerWindowsSize) and (not PerBodyPart):
-           file_similarity=f"./output_similarity/{file1}_simscore.npz"
-           file1_score_np = np.stack(file1_score,axis=0)
-           np.savez(file_similarity, data=file1_score_np)
-       elif (not PerWindowsSize) and (PerBodyPart):
-           file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart.npz"
-           file1_score_np = np.stack(file1_score,axis=0)
-           np.savez(file_similarity, data=file1_score_np)
-       elif (PerWindowsSize) and (PerBodyPart):
-           file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart_PerWindow.npz"
-           with open(file_similarity, 'w') as json_file:
-             json.dump(file1_score, json_file)
+           print(file1_score)

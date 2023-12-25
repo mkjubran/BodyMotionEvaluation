@@ -2,7 +2,7 @@ file1="E6_P8_T0_C0_seg0"
 file2="E6_P7_T0_C0_seg0"
 
 
-python3 bin/inference_similarity.py --data_dir "../SARA_released/" \
+python3 bin/inference_similarity_twofiles.py --data_dir "../SARA_released/" \
   --model_path "./logdir/exp_bpe/model/model_epoch70.pth" \
   --pose_detection "MoveNet" \
   -h1 400 \
@@ -14,7 +14,8 @@ python3 bin/inference_similarity.py --data_dir "../SARA_released/" \
   --thresh 0.9 \
   --pose_detection "MoveNet" \
   --embeddings_path "./output_embeddings" \
-  --mp4_path "../../Dataset_CVDLPT_Videos_Segments_11_2023" 
-
+  --mp4_path "../../Dataset_CVDLPT_Videos_Segments_11_2023" \
+  --file1emb "E0_P0_T0_C2_seg5_2D_emb" \
+  --file2emb "E1_P1_T0_C2_seg6_2D_emb"
 
   #--use_flipped_motion \
