@@ -19,11 +19,12 @@ import itertools
 from tslearn.metrics import dtw_path
 import torch
 from dtaidistance import dtw_ndim
+import json
 
 body_parts_name = ['ra', 'la', 'rl', 'll', 'torso']
 
-PerWindowsSize = True
-PerBodyPart = True
+PerWindowsSize = False
+PerBodyPart = False
 
 def chunked_iterable(iterable, size):
     it = iter(iterable)
@@ -185,15 +186,15 @@ if __name__ == '__main__':
               file2_meta_score.append(similarity_score_per_window)
               file1_score.append(file2_meta_score)
 
-    if (not PerWindowsSize) and (not PerBodyPart):
-        file_similarity=f"./output_similarity/{file1}_simscore.npz"
-        file1_score_np = np.stack(file1_score,axis=0)
-        np.savez(file_similarity, data=file1_score_np)
-    elif (not PerWindowsSize) and (PerBodyPart):
-        file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart.npz"
-        file1_score_np = np.stack(file1_score,axis=0)
-        np.savez(file_similarity, data=file1_score_np)
-    elif (PerWindowsSize) and (PerBodyPart):
-        file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart_PerWindow.npz"
-        with open(file_similarity, 'w') as json_file:
+       if (not PerWindowsSize) and (not PerBodyPart):
+           file_similarity=f"./output_similarity/{file1}_simscore.npz"
+           file1_score_np = np.stack(file1_score,axis=0)
+           np.savez(file_similarity, data=file1_score_np)
+       elif (not PerWindowsSize) and (PerBodyPart):
+           file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart.npz"
+           file1_score_np = np.stack(file1_score,axis=0)
+           np.savez(file_similarity, data=file1_score_np)
+       elif (PerWindowsSize) and (PerBodyPart):
+           file_similarity=f"./output_similarity/{file1}_simscore_PerBodyPart_PerWindow.npz"
+           with open(file_similarity, 'w') as json_file:
              json.dump(file1_score, json_file)
