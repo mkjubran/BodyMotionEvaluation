@@ -21,8 +21,6 @@ if __name__ == '__main__':
     parser.add_argument('--name', type=str, default="sim_test", help="task name")
     parser.add_argument('--data_dir', default="", required=True, help="path to dataset dir")
     parser.add_argument('--model_path', type=str, required=True, help="filepath for trained model weights")
-    parser.add_argument('--video1', type=str, required=True, help="video1 mp4 path", default=None)
-    parser.add_argument('-v1', '--vid1_json_dir', type=str, required=True, help="video1's coco annotation json")
     parser.add_argument('-h1', '--img1_height', type=int, help="video1's height", default=480)
     parser.add_argument('-w1', '--img1_width', type=int, help="video1's width", default=854)
     parser.add_argument('-pad2', '--pad2', type=int, help="video2's start frame padding", default=0)
